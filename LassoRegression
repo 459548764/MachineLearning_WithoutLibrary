@@ -1,0 +1,53 @@
+
+'''
+
+def LassoRegression(input_data,output_data,dimension,running_cnt)
+Method: All Batch In training Each Time
+Adapted Coordination Downwards/Forwards to get the minimum of the Loss
+Warning: lamuda could not be too big or it will get the wrong answer
+
+
+'''
+
+def LassoRegression(input,output,dim,cnt):
+    size = dim
+    num_of_points = input.shape[0]
+    x = np.zeros([size,num_of_points])
+    w = np.ones([1,size])
+    lamuda = 0.1
+
+    for i in range(cnt):
+        sum = 0
+        for j in range(num_of_points):
+            for k in range(size):
+                x[k][j] = input[j]**k
+            y = np.dot(w,x[:,j])[:,np.newaxis]
+            error = 0.5*(y-output[j])**2
+            sum = sum + error
+        for k in range(size):
+            sum = sum + lamuda*np.abs(w[0][k])
+
+        for m in range(size):
+            temp = 0
+            w[0][m] = w[0][m] - 0.01
+            for j in range(num_of_points):
+                for k in range(size):
+                    x[k][j] = input[j]**k
+                y = np.dot(w,x[:,j])[:,np.newaxis]
+                error = 0.5*(y-output[j])**2
+                temp = temp + error
+            for k in range(size):
+                temp = temp + lamuda*np.abs(w[0][k])
+            if(temp < sum):
+                sum = temp
+            else:
+                w[0][m] = w[0][m] + 0.02
+        print(w)
+        
+        
+'''
+Example: LassoRegression(X1,Y,8,1000)
+Output:[[3.15 1.09 0.33 0.01 0.01 0.01 0.01 0.01]]
+(X1,Y) are my personal data
+'''
+
