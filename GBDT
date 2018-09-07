@@ -1,0 +1,100 @@
+
+
+data = [[1,5.56],
+        [2,5.7],
+        [3,5.91],
+        [4,6.4],
+        [5,6.8],
+        [6,7.05],
+        [7,8.9],
+        [8,8.7],
+        [9,9],
+        [10,9.05]]
+
+residual = []
+
+def setup():
+    global avr
+    sum = 0
+    for dt in data:
+        sum = sum + dt[1]
+    avr = sum/len(data)
+    for i in range(10):
+        residual.append(avr)
+
+def Spilt(dataset,cur,gradient):
+    left = []
+    right = []
+    cnt = 0
+    for dt in dataset:
+        if(dt[0] <= cur):
+            left.append(gradient[cnt])
+        else:
+            right.append(gradient[cnt])
+        cnt = cnt + 1
+    return left,right
+
+def Cost(dataset):
+    sum = 0
+    for i in range(len(dataset)):
+        sum = sum + dataset[i]
+    avr = sum/len(dataset)
+    sum = 0
+    for i in range(len(dataset)):
+        sum = sum + (dataset[i] - avr)**2
+    return sum/len(dataset)
+
+def ChoostBestDivide(dataset,residual):
+    group = sorted(list(set([dt[0] for dt in dataset])))
+    gradient = []
+    i = 0
+    for dt in dataset:
+        gradient.append(dt[1] - residual[i])
+        i = i + 1
+
+    best = 10000
+    bestridge = -1
+    for i in range(len(group) - 1):
+        cur = group[i]
+        left,right = Spilt(dataset,cur,gradient)
+        eff1 = Cost(left)
+        eff2 = Cost(right)
+        res = eff1 + eff2
+        if(res < best):
+            best = res
+            bestridge = i
+
+    sum1 = sum2 = 0
+    cnt1 = cnt2 = 0
+    for i in range(len(gradient)):
+        if(i <= bestridge):
+            sum1 = sum1 + gradient[i]
+            cnt1 = cnt1 + 1
+        else:
+            sum2 = sum2 + gradient[i]
+            cnt2 = cnt2 + 1
+    r1 = sum1/cnt1
+    r2 = sum2/cnt2
+    print(bestridge,r1,r2)
+    return bestridge,r1,r2
+
+def buildtree(dataset,cnt):
+    if(cnt == 30):
+        print(residual)
+        return
+
+    if(cnt == 1):
+        setup()
+    bestridge,r1,r2 = ChoostBestDivide(dataset,residual)
+    i = 0
+    for dt in dataset:
+        if(dt[0] <= bestridge+1):
+            residual[i] = residual[i] + 0.1*r1
+        else:
+            residual[i] = residual[i] + 0.1*r2
+        i = i + 1
+
+    buildtree(dataset,cnt+1)
+
+buildtree(data,1)
+
